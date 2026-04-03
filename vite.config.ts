@@ -4,30 +4,35 @@ import react from '@vitejs/plugin-react'
 import { VitePWA } from 'vite-plugin-pwa'
 import { fetchRSS, type Locale } from './lib/rss'
 
-async function apiHandler(req: IncomingMessage, res: ServerResponse) {
+async function rssHandler(req: IncomingMessage, res: ServerResponse) {
   res.setHeader('Content-Type', 'application/json')
+  res.setHeader('Access-Control-Allow-Origin', '*')
 
-  if (req.method !== 'POST') {
+  if (req.method === 'OPTIONS') {
+    res.statusCode = 204
+    res.end()
+    return
+  }
+
+  if (req.method !== 'GET') {
     res.statusCode = 405
     res.end(JSON.stringify({ error: 'Method not allowed' }))
     return
   }
 
-  let body = ''
-  for await (const chunk of req) body += chunk.toString()
+  const url = new URL(req.url ?? '', 'http://localhost')
+  const q = url.searchParams.get('q')?.trim() ?? ''
+  const lang = url.searchParams.get('lang')
+  const locale: Locale = lang === 'en' ? 'en' : 'sk'
 
-  const parsed = JSON.parse(body || '{}') as { topic?: string; locale?: string }
-  const topic = parsed.topic?.trim()
-  const locale: Locale = parsed.locale === 'en' ? 'en' : 'sk'
-
-  if (!topic) {
+  if (!q) {
     res.statusCode = 400
-    res.end(JSON.stringify({ error: 'Topic is required' }))
+    res.end(JSON.stringify({ error: 'Query parameter q is required' }))
     return
   }
 
   try {
-    const { items } = await fetchRSS(topic, locale)
+    const { items } = await fetchRSS(q, locale)
     res.end(JSON.stringify({ articles: items }))
   } catch (err) {
     res.statusCode = 502
@@ -64,7 +69,7 @@ export default defineConfig({
     {
       name: 'dev-api',
       configureServer(server) {
-        server.middlewares.use('/api/search', apiHandler)
+        server.middlewares.use('/api/rss', rssHandler)
       },
     },
   ],
