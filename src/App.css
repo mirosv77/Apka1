@@ -319,12 +319,145 @@ body {
   flex-shrink: 0;
 }
 
+.time-expanded {
+  padding: 6px 16px 2px;
+  color: #fbbf24;
+  font-size: 12px;
+  font-style: italic;
+}
+
 .no-news {
   padding: 16px;
   color: var(--text2);
   font-size: 13px;
   font-style: italic;
   text-align: center;
+}
+
+/* ── Search bar ── */
+.search-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 16px;
+  border-bottom: 1px solid var(--border);
+  background: var(--bg2);
+}
+
+.search-icon {
+  font-size: 14px;
+  flex-shrink: 0;
+  opacity: 0.6;
+}
+
+.search-input {
+  flex: 1;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 8px 12px;
+  color: var(--text);
+  font-size: 14px;
+  outline: none;
+  transition: border-color 0.15s;
+}
+
+.search-input:focus {
+  border-color: var(--blue);
+}
+
+.search-input::placeholder {
+  color: var(--text2);
+  font-size: 13px;
+}
+
+/* ── Model status badge ── */
+.model-badge {
+  font-size: 11px;
+  font-weight: 600;
+  padding: 3px 8px;
+  border-radius: 20px;
+  flex-shrink: 0;
+  white-space: nowrap;
+}
+
+.model-badge--loading {
+  background: #1e293b;
+  color: var(--text2);
+  border: 1px solid var(--border);
+}
+
+.model-badge--ready {
+  background: #14532d;
+  color: #86efac;
+  border: 1px solid #166534;
+}
+
+.model-badge--error {
+  background: #450a0a;
+  color: var(--red);
+  border: 1px solid #7f1d1d;
+}
+
+/* ── Search mode badge ── */
+.search-mode-badge {
+  font-size: 11px;
+  font-weight: 600;
+  padding: 3px 9px;
+  border-radius: 20px;
+  white-space: nowrap;
+}
+
+.search-mode-badge--computing {
+  background: #1c1917;
+  color: var(--text2);
+  border: 1px solid var(--border);
+}
+
+.search-mode-badge--semantic {
+  background: #1e1b4b;
+  color: #a5b4fc;
+  border: 1px solid #3730a3;
+}
+
+.search-mode-badge--fuzzy {
+  background: #172554;
+  color: #93c5fd;
+  border: 1px solid #1e40af;
+}
+
+.btn-search-clear {
+  background: none;
+  border: none;
+  color: var(--text2);
+  font-size: 13px;
+  padding: 4px 8px;
+  cursor: pointer;
+  border-radius: 6px;
+  transition: color 0.15s, background 0.15s;
+  flex-shrink: 0;
+}
+
+.btn-search-clear:hover {
+  color: var(--text);
+  background: var(--border);
+}
+
+/* ── Highlight matched text ── */
+mark {
+  background: #854d0e;
+  color: #fef08a;
+  border-radius: 3px;
+  padding: 0 2px;
+}
+
+/* ── Search result meta (topic + locale) ── */
+.search-result-meta {
+  min-width: 0;
+  max-width: 120px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 /* ── Mobile tweaks ── */

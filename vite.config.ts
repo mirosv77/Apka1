@@ -32,8 +32,8 @@ async function rssHandler(req: IncomingMessage, res: ServerResponse) {
   }
 
   try {
-    const { items } = await fetchRSS(q, locale)
-    res.end(JSON.stringify({ articles: items }))
+    const { items, withinHours } = await fetchRSS(q, locale)
+    res.end(JSON.stringify({ articles: items, withinHours }))
   } catch (err) {
     res.statusCode = 502
     res.end(JSON.stringify({ error: (err as Error).message }))
@@ -41,6 +41,10 @@ async function rssHandler(req: IncomingMessage, res: ServerResponse) {
 }
 
 export default defineConfig({
+  optimizeDeps: {
+    // @huggingface/transformers uses WASM — Vite nesmie prebundlovať
+    exclude: ['@huggingface/transformers'],
+  },
   plugins: [
     react(),
     VitePWA({

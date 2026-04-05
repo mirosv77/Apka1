@@ -1,4 +1,5 @@
-const MAX_AGE_MS = 24 * 60 * 60 * 1000
+const HOUR_MS = 60 * 60 * 1000
+const SEARCH_WINDOWS = [24, 48, 72] as const
 
 export type Locale = 'sk' | 'en'
 
@@ -24,7 +25,7 @@ function decodeEntities(s: string): string {
     .replace(/&#39;|&apos;/g, "'")
 }
 
-export function parseRSS(xml: string, now: number): { items: RSSItem[]; totalParsed: number } {
+export function parseRSS(xml: string, now: number, maxAgeMs: number): { items: RSSItem[]; totalParsed: number } {
   const items: RSSItem[] = []
   const itemRe = /<item>([\s\S]*?)<\/item>/g
   let m: RegExpExecArray | null
@@ -46,7 +47,7 @@ export function parseRSS(xml: string, now: number): { items: RSSItem[]; totalPar
     if (!rawTitle || !url) continue
     totalParsed++
 
-    if (pubDateStr && now - new Date(pubDateStr).getTime() > MAX_AGE_MS) continue
+    if (pubDateStr && now - new Date(pubDateStr).getTime() > maxAgeMs) continue
 
     if (items.length < 20) {
       items.push({
@@ -63,7 +64,7 @@ export function parseRSS(xml: string, now: number): { items: RSSItem[]; totalPar
 export async function fetchRSS(
   topic: string,
   locale: Locale = 'sk',
-): Promise<{ items: RSSItem[]; totalParsed: number }> {
+): Promise<{ items: RSSItem[]; totalParsed: number; withinHours: number }> {
   const feedUrl = getFeedUrl(topic, locale)
 
   const rssRes = await fetch(feedUrl, {
@@ -72,5 +73,13 @@ export async function fetchRSS(
 
   if (!rssRes.ok) throw new Error(`RSS feed returned ${rssRes.status}`)
 
-  return parseRSS(await rssRes.text(), Date.now())
+  const xml = await rssRes.text()
+  const now = Date.now()
+
+  for (const hours of SEARCH_WINDOWS) {
+    const { items, totalParsed } = parseRSS(xml, now, hours * HOUR_MS)
+    if (items.length > 0) return { items, totalParsed, withinHours: hours }
+  }
+
+  return { items: [], totalParsed: 0, withinHours: SEARCH_WINDOWS[SEARCH_WINDOWS.length - 1] }
 }

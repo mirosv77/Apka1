@@ -11,10 +11,10 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   if (!topic) return res.status(400).json({ error: 'Topic is required' })
 
   try {
-    const { items, totalParsed } = await fetchRSS(topic, locale)
+    const { items, withinHours } = await fetchRSS(topic, locale)
 
     res.setHeader('Cache-Control', 's-maxage=300, stale-while-revalidate=60')
-    return res.json({ articles: items })
+    return res.json({ articles: items, withinHours })
   } catch (err) {
     return res.status(502).json({ error: (err as Error).message })
   }
